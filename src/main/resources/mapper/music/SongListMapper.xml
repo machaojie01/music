@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mcj.music.dao.SongListMapper">
+
+    <resultMap id="BaseResultMap" type="com.mcj.music.domain.SongList">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="pic" jdbcType="VARCHAR" property="pic"/>
+        <result column="introduction" jdbcType="VARCHAR" property="introduction"/>
+        <result column="style" jdbcType="VARCHAR" property="style"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id,title,pic,introduction,style
+    </sql>
+
+    <insert id="insert" parameterType="com.mcj.music.domain.SongList">
+        insert into song_list
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="pic != null">
+                pic,
+            </if>
+            <if test="introduction != null">
+                introduction,
+            </if>
+            <if test="style != null">
+                style,
+            </if>
+        </trim>
+        <trim prefix=" values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="title != null">
+                #{title},
+            </if>
+            <if test="pic != null">
+                #{pic},
+            </if>
+            <if test="introduction != null">
+                #{introduction},
+            </if>
+            <if test="style != null">
+                #{style},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.mcj.music.domain.SongList">
+        update song_list
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="pic != null">
+                pic = #{pic},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction},
+            </if>
+            <if test="style != null">
+                style = #{style},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from song_list
+        where id = #{id}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from song_list
+        where id = #{id}
+    </select>
+
+    <select id="allSongList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from song_list
+    </select>
+
+    <select id="songListLikeTitle" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from song_list
+        where title like #{title}
+    </select>
+
+    <select id="songListOfTitle" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from song_list
+        where title = #{title}
+    </select>
+
+    <select id="songListLikeStyle" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from song_list
+        where style like #{style}
+    </select>
+</mapper>

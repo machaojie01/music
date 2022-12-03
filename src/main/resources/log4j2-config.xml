@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+    <Properties>
+        <Property name="LOG_PATH">D:/log/music/log4j2</Property>
+        <!--彩色日志-->
+        <Property name="CONSOLE_LOG_PATTERN">%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%xwEx</Property>
+        <!--写入到文件中的日志，非彩色-->
+        <Property name="FILE_LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${sys:PID} --- [%15.15t] %-40.40c{1.} : %m%n%xwEx</Property>
+    </Properties>
+    <Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${CONSOLE_LOG_PATTERN}"></PatternLayout>
+        </Console>
+        <!-- 打印出所有的info及以上级别信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
+        <RollingFile name="INFO_LOG" fileName="${LOG_PATH}/log-info.log"
+                     filePattern="${LOG_PATH}/log-info-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FILE_LOG_PATTERN}"/>
+            <Policies>
+                <!--interval属性用来指定多久滚动一次，默认是1， 单位到底是月 天 小时 分钟，根据filePattern配置的日期格式而定，本处的格式为天，则默认为1天-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--按大小分-->
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录info和以上级别信息 -->
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <!-- 存储所有error信息 -->
+        <RollingFile name="ERROR_LOG" fileName="${LOG_PATH}/log-error.log"
+                     filePattern="${LOG_PATH}/log-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FILE_LOG_PATTERN}"/>
+            <Policies>
+                <!--interval属性用来指定多久滚动一次，默认是1， 单位到底是月 天 小时 分钟，根据filePattern配置的日期格式而定，本处的格式为天，则默认为1天-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--按大小分-->
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录error级别信息 -->
+                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="1000"/>
+        </RollingFile>
+        <!--大于5分钟宽带查询接口单独打印-->
+        <RollingFile name="DAYU_LOG" fileName="${LOG_PATH}/log-dayuInfo.log"
+                     filePattern="${LOG_PATH}/log-dayuInfo-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FILE_LOG_PATTERN}"/>
+            <Policies>
+                <!--interval属性用来指定多久滚动一次，默认是1， 单位到底是月 天 小时 分钟，根据filePattern配置的日期格式而定，本处的格式为天，则默认为1天-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--按大小分-->
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录info及以上级别信息 -->
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="INFO_LOG"/>
+            <AppenderRef ref="ERROR_LOG"/>
+        </Root>
+
+        <!--将logger中的 additivity 属性配置为 false，则这个logger不会将日志流反馈到root中。-->
+        <Logger name="DAYU_LOG" additivity="true" level="INFO">
+            <!--<appender-ref ref="sendCodeFile" level="INFO" />-->
+            <appender-ref ref="DAYU_LOG" level="INFO" />
+        </Logger>
+    </Loggers>
+</Configuration>

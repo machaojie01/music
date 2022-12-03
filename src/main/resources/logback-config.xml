@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--日志级别从低到高分为TRACE < DEBUG < INFO < WARN < ERROR < FATAL，如果设置为WARN，则低于WARN的信息都不会输出-->
+<!--configuration 标签包含三个属性
+    scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+    scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+    debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+-->
+<configuration scan="true" scanPeriod="10 seconds" debug="false">
+    <!--子节点<contextName>：用来设置上下文名称，每个logger都关联到logger上下文，默认上下文名称为default。但可以使用<contextName>设置成其他名字，用于区分不同应用程序的记录。-->
+    <contextName>musicLogback</contextName>
+
+    <!-- property标签用来定义变量值，有name和value两个属性,能够在上下文通过${}来进行引用变量，可以说就相当于一个map，name为key，value为value
+       name:变量的名称
+       value:变量定义的值
+     -->
+    <property name="LOG_PATH" value="D:/log/music"/>
+
+    <!-- timestamp标签，有key和datePattern两个属性
+       key:标识该timestamp标签的名字
+       datePattern：设置将当前时间（解析配置文件的时间）转换为字符串的模式，遵循java.txt.SimpleDateFormat的格式。
+       -->
+    <timestamp key="SECOND" datePattern="yyyy-MM-dd HH:mm:ss"/>
+    <!--彩色日志依赖的渲染类-->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+    <!-- 控制台彩色日志格式 -->
+    <property name="LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <!-- 写入到文件日志格式 -->
+    <!--
+        -X号: X信息输出时左对齐；
+        %d: 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d{yyy MMM dd HH:mm:ss,SSS}，输出类似：2002年10月18日 22：10：28，921
+        %r: 输出自应用启动到输出该log信息耗费的毫秒数
+        %c: 输出日志信息所属的类目，通常就是所在类的全名
+        %t: 输出产生该日志事件的线程名
+        %%: 输出一个"%"字符
+        %F: 输出日志消息产生时所在的文件名称
+        %L: 输出代码中的行号
+        %m: 输出代码中指定的消息,产生的日志具体信息
+        %n: 输出一个回车换行符，Windows平台为"/r/n"，Unix平台为"/n"输出日志信息换行
+        可以在%与模式字符之间加上修饰符来控制其最小宽度、最大宽度、和文本的对齐方式。如：
+        1)%20c：指定输出category的名称，最小的宽度是20，如果category的名称小于20的话，默认的情况下右对齐。
+        2)%-20c:指定输出category的名称，最小的宽度是20，如果category的名称小于20的话，"-"号指定左对齐。
+        3)%.30c:指定输出category的名称，最大的宽度是30，如果category的名称大于30的话，就会将左边多出的字符截掉，但小于30的话也不会有空格。
+        4)%20.30c:如果category的名称小于20就补空格，并且右对齐，如果其名称长于30字符，就从左边较远输出的字符截掉。
+        5)更多命令描述链接：https://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout
+    -->
+    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <!-- appender标签，负责写日志的组件，有两个必要的属性name和class，
+        name:指定appender名称，
+        class:指定appender全限定名
+            ConsoleAppender:把日志输出到控制台，有以下子节点
+                <encoder>:对日志进行格式化
+            FileAppender:把日志添加到文件，有以下子节点
+                <file>:被写入的文件名，可以是相对目录，也可以是绝对目录，如果上级目录不存在会自动创建，没有默认值。
+                <append>:如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。
+                <encoder>:对日志进行格式化
+            RollingFileAppender:滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件。有以下子节点
+                <file>:被写入的文件名，可以是相对目录，也可以是绝对目录，如果上级目录不存在会自动创建，没有默认值。
+                <append>:如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。
+                <rollingPolicy>:当发生滚动时，决定RollingFileAppender的行为，涉及文件移动和重命名。属性class定义具体的滚动策略类，有如下：
+                    class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"：最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动。有以下子节点：
+                        <fileNamePattern>:必要节点，包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}
+                        <maxHistory>:可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每个月滚动，且<maxHistory>是6，则只保存最近6个月的文件，删除之前的旧文件。注意，删除旧文件是，那些为了归档而创建的目录也会被删除。
+                    class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy":查看当前活动文件的大小，如果超过指定大小会告知RollingFileAppender 触发当前活动文件滚动。有以下节点:
+                        <maxFileSize>:活动文件的大小，默认值是10MB。
+                    class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy":根据固定窗口算法重命名文件的滚动策略。有以下子节点：
+                        <minIndex>:窗口索引最小值
+                        <maxIndex>:窗口索引最大值，当用户指定的窗口过大时，会自动将窗口设置为12。
+                        <fileNamePattern>:必须包含“%i”例如，假设最小值和最大值分别为1和2，命名模式为 log%i.log,会产生归档文件log1.log和log2.log。还可以指定文件压缩选项log%i.log.gz或者log%i.log.zip
+
+    -->
+    <!--将日志输出到控制台，并且只输出INFO级别及比其级别高的日志-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <!--字符集-->
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- filter标签：主要是过滤，有两个过滤器
+            LevelFilter:根据精确的级别匹配过滤事件。 如果事件的级别等于配置的级别，则筛选器接受或拒绝该事件，具体取决于onMatch和onMismatch属性的配置。比如：
+                <level>INFO</level>
+                <onMatch>ACCEPT</onMatch>
+                <onMismatch>DENY</onMismatch>
+                这种表示只记录INFO级别的
+                onMatch值有三个选项：
+                    ACCEPT：表示匹配该级别及以上
+                    DENY：表示不匹配该级别及以上
+                    NEUTRAL：表示该级别及以上的，由下一个filter处理，如果当前是最后一个，则表示匹配该级别及以上
+                onMisMatch值有三个选项：
+                    ACCEPT：表示匹配该级别以下
+                    DENY：表示不匹配该级别以下的
+                    NEUTRAL：表示该级别及以下的，由下一个filter处理，如果当前是最后一个，则不匹配该级别以下的
+            ThresholdFilter：过滤低于指定阈值的事件。 对于等于或高于阈值的事件通行，比如：
+                <level>DEBUG</level>
+                表示只打印日志级别高于等于DEBUG级别的日志
+        -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+
+    </appender>
+
+    <!--输出日志到指定文件目录的log.log中，日志被追加到文件结尾，输入INFO及比其等级高的日志-->
+    <appender name="INFO_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_PATH}/info/log.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!--输出日志到指定文件目录的log.log中，日志被追加到文件结尾，只输入ERROR级别的日志-->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_PATH}/error/log.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!--每天生成一个日志文件,保存30天的日志。这个可以理解为按照天数，每天一个日志文件及逆行保存日志记录，保存INFO及INFO级别以上的日志-->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/info/log.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- logger标签：用来设置某一个包或具体的某一个类的日志打印级别、以及指定<appender>，具有name，level，additivity属性
+        name:用来指定受此logger约束的某一个包或者具体的某一个类。
+        level:用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL和OFF
+        additivity:是否向上级logger传递打印信息,也就是是否将日志流反馈到root中。默认是true。
+    -->
+    <logger name="com.apache.ibatis" level="TRACE"/>
+    <logger name="java.sql.Connection" level="DEBUG"/>
+    <logger name="java.sql.Statement" level="DEBUG"/>
+    <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+
+    <!--root标签：全局配置，本质上也是一个logger,只不过name属性恒为root,是所有logger的上级，默认所有的Logger都继承此配置-->
+    <root>
+        <!--appender-ref标签：用来指定日志输出到哪个appender-->
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="INFO_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+        <appender-ref ref="ROLLING_FILE"/>
+    </root>
+
+</configuration>

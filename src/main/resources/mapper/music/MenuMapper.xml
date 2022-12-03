@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mcj.music.dao.MenuMapper">
+
+    <select id="selectPermsByUserId" resultType="java.lang.String">
+        select DISTINCT m.perms
+        from admin a
+                 left join user_role ur on a.id = ur.user_id
+                 left join role r on ur.role_id = r.id
+                 left join role_menu rm on r.id = rm.role_id
+                 left join menu m on rm.menu_id = m.id
+        where a.id = #{userId}
+    </select>
+
+</mapper>
